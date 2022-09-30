@@ -1,7 +1,11 @@
 import React from 'react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth'
+import {getAuth, createUserWithEmailAndPassword, updateProfile} from "firebase/auth"
+import {db}from "../firebase"
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import {toast} from "react-toastify"
 
 export default function SignUp() {
 
@@ -9,8 +13,12 @@ export default function SignUp() {
         email:"",
         password:"",
         name:""
-    })
+    });
+    
     const {email, password, name} = data
+    
+    const navigate = useNavigate()
+    
     function onChange (e){
        setData((prev)=>({
         ...prev,
@@ -19,6 +27,27 @@ export default function SignUp() {
        }))
        
           
+    }
+    async function onSubmit (e){
+        e.preventDefault()
+        try {
+            const auth = getAuth()
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            updateProfile(auth.currentUser,{displayName:name})
+            
+            const user = userCredential.user
+
+            const dataCopy = { ...data}
+            delete dataCopy.password
+            dataCopy.timestamp = serverTimestamp();
+
+            await setDoc(doc(db, "users", user.uid),dataCopy)
+            navigate("/")
+        } catch (error) {
+            toast.error("there is an error on registration")
+        }
+
     }
 
   return (
@@ -29,9 +58,9 @@ export default function SignUp() {
                 <img src='https://images.unsplash.com/flagged/photo-1564767609342-620cb19b2357?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=773&q=80' alt='key' className='w-full rounded-2xl'/>
             </div>
             <div className='w-full md:max-w-[400px]'>
-                <form >
+                <form onSubmit={onSubmit}>
                     <div>
-                    <input type="email" placeholder="Full Name" id="name" value={name} onChange={onChange} className='w-full bg-white text-gray-700 border-gray-300 rounded transition ease-in-out'></input>
+                    <input type="text" placeholder="Full Name" id="name" value={name} onChange={onChange} className='w-full bg-white text-gray-700 border-gray-300 rounded transition ease-in-out'></input>
 
                     </div>
                     <div>
