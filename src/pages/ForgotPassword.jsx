@@ -17,6 +17,7 @@ export default function ForgotPassword() {
         try {
             const auth = getAuth()
             await sendPasswordResetEmail(auth,email)
+            toast.success("email was sent")
             
         } catch (error) {
             toast.error("could not send reset password")
@@ -35,7 +36,7 @@ export default function ForgotPassword() {
                 <img src='https://images.unsplash.com/flagged/photo-1564767609342-620cb19b2357?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=773&q=80' alt='key' className='w-full rounded-2xl'/>
             </div>
             <div className='w-full md:max-w-[400px]'>
-                <form >
+                <form onSubmit={onSubmit}>
                   
                     <div>
                     <input type="email" placeholder="Email Address" id="email" value={email} onChange={onChange} className='w-full bg-white text-gray-700 border-gray-300 rounded transition ease-in-out'></input>
