@@ -43,6 +43,7 @@ export default function SignUp() {
             dataCopy.timestamp = serverTimestamp();
 
             await setDoc(doc(db, "users", user.uid),dataCopy)
+         
             navigate("/")
         } catch (error) {
             toast.error("there is an error on registration")
