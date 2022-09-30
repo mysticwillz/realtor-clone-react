@@ -1,7 +1,9 @@
 import React from 'react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth'
+import { signInWithEmailAndPassword,  getAuth } from 'firebase/auth'
+import { toast } from 'react-toastify'
 
 export default function SignIn() {
 
@@ -9,15 +11,34 @@ export default function SignIn() {
         email:"",
         password:""
     })
+
     const {email, password} = data
     function onChange (e){
        setData((prev)=>({
         ...prev,
         [e.target.id]:e.target.value
         
-       }))
-       
+       }))  
           
+    };
+
+    const navigate = useNavigate()
+
+    async function onSubmit (e){
+        e.preventDefault()
+        try {
+            const auth = getAuth()
+            const userCredential = await signInWithEmailAndPassword(auth, email, password)
+            
+            if(userCredential.user){
+                navigate("/")
+            }
+            
+        } catch (error) {
+            toast.error("user not verified")
+            
+        }
+
     }
 
   return (
@@ -28,7 +49,7 @@ export default function SignIn() {
                 <img src='https://images.unsplash.com/flagged/photo-1564767609342-620cb19b2357?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=773&q=80' alt='key' className='w-full rounded-2xl'/>
             </div>
             <div className='w-full md:max-w-[400px]'>
-                <form >
+                <form onSubmit={onSubmit}>
                     <div>
                     <input type="email" placeholder="Email Address" id="email" value={email} onChange={onChange} className='w-full bg-white text-gray-700 border-gray-300 rounded transition ease-in-out'></input>
 
